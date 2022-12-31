@@ -1,18 +1,39 @@
-def ceaser_cipher(string, number)
-  alpha_values = *('a'..'z')
-  alpha_cap_values= *('A'..'Z')
-  convert_to_num = []
-
-  string.each_char do |char| 
-    if alpha_values.include?(char)
-      convert_to_num.push((alpha_values.find_index(char)) + number)
-    end   
+def ceaser_cipher(string, amount)
+  alpha_min_values = *('a'..'z')
+  alpha_cap_values = *('A'..'Z')
+  alpha = alpha_cap_values + alpha_min_values
+ 
+  capital=[]
+  encrypted =[]
+  i = 0
+ 
+  string.each_char do |char|
+    if alpha.include?(char)
+      convert += ((alpha.find_index(char)))
+      capital.push(i)if char == char.upcase
+    else
+      convert.push(char)
+    end
+    i += 1
   end
 
-  convert_to_num.each do |number|
-    puts alpha_values[number]
+  convert.each do |number|
+    if number.is_a? Numeric
+      num = number + amount 
+      num = num -52 if num > 52
+      encrypted.push(alpha[num])
+    else
+      encrypted.push(number)
+    end
   end
 
+  encrypted.each {|en| en.downcase!}
+  capital.each {|value| encrypted[value].upcase!}
+ 
+   print encrypted.join("")
 end
 
- ceaser_cipher("hello", 2)
+
+ ceaser_cipher("Hi How Are You?", 10)
+
+
