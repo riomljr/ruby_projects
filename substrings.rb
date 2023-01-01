@@ -1,10 +1,9 @@
-def substrings (inputs, dict)
+def substrings(inputs, dict)
   new_word = inputs.gsub(/[[:punct:]]/, '').downcase.split(' ')
-  match = new_word & dict 
   count = Hash.new(0)
 
-  new_word.each { |value| count[value] += 1 if match.include?(value)}
-  return count
+  new_word.each { |value| count[value] += 1 if dict.include?(value)}
+  return print count
 end
 
 dictionary =["hello", "how", "you", "too", "if", "is", "ok"]
