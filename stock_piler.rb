@@ -1,5 +1,5 @@
 def stock_picker(prices)
-  profit=[]
+  profit = []
   indexes = []
  
   prices.each_with_index do |value, i|
@@ -11,10 +11,8 @@ def stock_picker(prices)
     end
   end
 
-  days = profit.find_index(profit.max)
- 
-  print indexes[days]
+  indexes[profit.find_index(profit.max)]
 end
 
 days_prices = [17,3,6,9,15,8,6,1,10]
-stock_picker(days_prices) #=> [1, 4]
+print stock_picker(days_prices) #=> [1, 4]
