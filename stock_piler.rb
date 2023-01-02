@@ -1,19 +1,20 @@
-days_prices = [17,3,6,9,15,8,6,1,10]
-
 def stock_picker(prices)
   profit=[]
+  indexes = []
  
   prices.each_with_index do |value, i|
     prices.each_with_index do|val, x| 
-      profit.push((val-value)) if (val - value) > 0 && (x>=i)
+      if (val - value) > 0 && (x>=i)
+        indexes += [[i, x]]
+        profit.push((val-value))
+      end
     end
   end
 
-  prices.each_with_index do |value, i|
-    prices.each_with_index do|val, x| 
-      print "buy day #{i} and sell day #{x} " if (val - value) == profit.max
-    end
-  end
+  days = profit.find_index(profit.max)
+ 
+  print indexes[days]
 end
 
-stock_picker(days_prices)
+days_prices = [17,3,6,9,15,8,6,1,10]
+stock_picker(days_prices) #=> [1, 4]
