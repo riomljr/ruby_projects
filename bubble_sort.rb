@@ -1,8 +1,6 @@
 def bubble_sort(numbers)
-  len =numbers.length
-
   until numbers.sort == numbers do
-    for index in 0...len -1
+    for index in 0...(numbers.length) -1
       if numbers[index] > numbers[index + 1]
         move = numbers[index]
         numbers[index] = numbers[index + 1]
