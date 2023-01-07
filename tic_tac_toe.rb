@@ -1,12 +1,14 @@
-class Player 
+class Player
   attr_reader :name
   attr_reader :score
   attr_reader :input
-  def initialize (name, score, input)
+  attr_reader :numbers_taken
+
+  def initialize(name, score, input)
     @name = name
     @score = score
     @input = input
-    @numbers_taken =[]
+    @numbers_taken = []
   end
 
   private
@@ -30,7 +32,11 @@ class Player
         @numbers_taken.push(@input)
       end
   end
-  
+
+  def add(value)
+    @numbers_taken.push(value)
+  end
+
   def won? 
     @score == 15
   end
@@ -65,27 +71,49 @@ class Table < Player
 
 end
 
+
+
+
+
 class Game < Table
 
-  def play(player, grid)
-   
+  def play_turn(player, player2, grid)
+    player.get_input
+    grid.convert_table(player.input, player.name)
     grid.display
-    for i in 0...8 do 
-        player.get_input
-        numbers_taken.push(player.input)
-        grid.convert_table(player.input, player.name)
-        grid.display
+    player2.add(player.input)
+  end
+
+  def play()
+    play1 = Player.new("Player 1", 0, 0)
+    play2 = Player.new("Player 2", 0, 0)
+    table = Table.new
+    table.display
   
+
+    for i in 0...8 do
+      play_turn(play1, play2, table)
+        if play1.won?
+          puts "Player 1 Wins!"
+          break
+        end
+      if (play1.numbers_taken.length > 8) && (play1.numbers_taken == play2.numbers_taken)
+        puts "Aww it's a tie! :/ Better Luck Tommorow!" 
+        break
+      end
+      play_turn(play2, play1, table)
+        if play2.won?
+          puts "Player 2 Wins!"
+          break
+        end
     end
   end
+    
 end
 
-  play1 = Player.new("Player 1", 0, 0)
-  play2 = Player.new("Player 2", 0, 0)
-  table = Table.new
 
 
-Game.new.play(play1, play2, table)
+Game.new.play
 
 
 
