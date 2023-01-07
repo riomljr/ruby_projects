@@ -44,11 +44,7 @@ end
 
 class Table < Player
   def initialize 
-    @board = [
-      [2, 7, 6],
-      [9, 5, 1],
-      [4, 3, 8]
-    ]
+    @board = [[2, 7, 6], [9, 5, 1],[4, 3, 8]]
   end
 
   def display
@@ -62,18 +58,12 @@ class Table < Player
     @mark = player == "Player 1" ? "X" : "O"
     @board.each do |row|
       row.each do |value|
-        if value == input.to_i
-          row[row.find_index(value)] = @mark
-        end
+        row[row.find_index(value)] = @mark if value == input.to_i
       end
     end
   end
 
 end
-
-
-
-
 
 class Game < Table
 
@@ -90,17 +80,19 @@ class Game < Table
     table = Table.new
     table.display
   
-
     for i in 0...8 do
       play_turn(play1, play2, table)
+
         if play1.won?
           puts "Player 1 Wins!"
           break
         end
+
       if (play1.numbers_taken.length > 8) && (play1.numbers_taken == play2.numbers_taken)
         puts "Aww it's a tie! :/ Better Luck Tommorow!" 
         break
       end
+
       play_turn(play2, play1, table)
         if play2.won?
           puts "Player 2 Wins!"
