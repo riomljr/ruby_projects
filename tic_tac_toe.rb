@@ -6,24 +6,33 @@ class Player
     @name = name
     @score = score
     @input = input
+    @numbers_taken =[]
   end
 
   private
   def add_score(input)
     @score += input.to_i
-    print "#{@name} if the Winner!" if @score >= 15 
   end
   
   public
   def get_input()
       @mark = @name == "Player 1" ? "X" : "O"
+
       puts "#{@name} select a number to put your #{@mark}"
-      @input = Kernel.gets.match(/\d+/)[0]
-      add_score(@input)
+      begin
+        @input = Kernel.gets.chomp.match(/\d+/)[0]
+        raise if @numbers_taken.include?(@input)
+      rescue
+        puts "Error. Select a/another number"
+        retry
+      else
+        add_score(@input)
+        @numbers_taken.push(@input)
+      end
   end
   
   def won? 
-    @score >= 15
+    @score == 15
   end
 end
 
@@ -47,7 +56,9 @@ class Table < Player
     @mark = player == "Player 1" ? "X" : "O"
     @board.each do |row|
       row.each do |value|
-        row[row.find_index(value)] = @mark if value == input.to_i
+        if value == input.to_i
+          row[row.find_index(value)] = @mark
+        end
       end
     end
   end
@@ -56,21 +67,17 @@ end
 
 class Game < Table
 
-  def loop(player1, player2, grid)
+  def play(player, grid)
    
     grid.display
-    player1.get_input
-    grid.convert_table(player1.input, player1.name)
-
-    grid.display
-    player2.get_input
-    grid.convert_table(player2.input, player2.name)
-
-
-  end
-
+    for i in 0...8 do 
+        player.get_input
+        numbers_taken.push(player.input)
+        grid.convert_table(player.input, player.name)
+        grid.display
   
-
+    end
+  end
 end
 
   play1 = Player.new("Player 1", 0, 0)
