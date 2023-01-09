@@ -11,7 +11,8 @@ class Player
   end
 
   def get_colors
-    print "(1)orange,(2)red, (3)blue, (4)green, (5)yellow, (6)brown \n Pick four Colors! \n"
+
+    print "\norange, red, blue, green, yellow, brown \n  \nPick four colors from the list above! \n \n"
     for i in 1...5
       puts "Pick Color number #{i}"
       begin
@@ -29,7 +30,26 @@ class Player
 
 end
 
-class Board
+class Computer
+  include Options
+  attr_reader :computer_colors
+  def initialize(name)
+    @name = name
+    @computer_colors =[]
+  end
+
+  def choose_rand_colors
+    for i in 0...4
+      begin
+        random_color =OPTIONS[rand(5)]
+        raise if @computer_colors.include?(random_color)
+      rescue 
+        retry
+      else
+        @computer_colors.push(random_color)
+      end
+    end
+  end
 
 end
 
@@ -37,7 +57,6 @@ class Game
 
 end
 
-player1 = Player.new("Jefrrey")
-player1.get_colors
-
-print player1.colors
+comp_player = Computer.new("AI1")
+comp_player.choose_rand_colors
+print comp_player.computer_colors
