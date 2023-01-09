@@ -1,5 +1,6 @@
 module Options 
   OPTIONS = ["orange", "red", "blue", "green", "yellow", "brown"]
+  WON = ["Black", "Black", "Black", "Black"]
 end 
 
 class Player
@@ -11,7 +12,7 @@ class Player
   end
 
   def get_colors
-
+    @colors.clear
     print "\norange, red, blue, green, yellow, brown \n  \nPick four colors from the list above! \n \n"
     for i in 1...5
       puts "Pick Color number #{i}"
@@ -38,10 +39,10 @@ class Computer
     @computer_colors =[]
   end
 
-  def choose_rand_colors
+  def choose_colors
     for i in 0...4
       begin
-        random_color =OPTIONS[rand(5)]
+        random_color = OPTIONS[rand(5)]
         raise if @computer_colors.include?(random_color)
       rescue 
         retry
@@ -53,10 +54,45 @@ class Computer
 
 end
 
-class Game
+class Game 
+  include Options
+  def human_guess(player, computer_player)
+    @pegs = []
+    puts computer_player.computer_colors
+
+    player.get_colors
+    human = player.colors
+    computer = computer_player.computer_colors
+    
+    human.each do |color|
+      if computer.include?(color)
+        human.find_index(color) == computer.find_index(color) ? @pegs.push("Black") : @pegs.push("White")
+      end
+    end
+    p @pegs
+  end
+
+  def play()
+    
+    player1 = Player.new("Human")
+    comp_player = Computer.new("AI1")
+    comp_player.choose_colors
+    @won = @pegs == ["Black", "Black", "Black", "Black"]
+    
+    for i in 0...12
+      human_guess(player1, comp_player)
+      if WON == @pegs 
+        print "YOU WON! WOOHOO!"
+        break
+      else
+         @pegs.clear
+      end
+      if i == 12
+        print "Aww you didn't figure out the code :( Better luck tomorrow"
+      end 
+    end
+  end
 
 end
 
-comp_player = Computer.new("AI1")
-comp_player.choose_rand_colors
-print comp_player.computer_colors
+Game.new.play
