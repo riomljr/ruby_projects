@@ -19,7 +19,7 @@ class Player
   def get_colors
     #@colors.clear
     p OPTIONS
-    print"\nPick four colors from the list above! \n \n"
+    print "\nPick four colors from the list above! \n \n"
     for i in 1...5
       puts "Pick Color number #{i}"
       begin
@@ -40,11 +40,16 @@ end
 class Computer
   include Options
   attr_reader :computer_colors
+  attr_reader :correct_colors
 
   def initialize(name)
     @name = name
     @computer_colors = []
     @computer_pegs = []
+    @correct_colors = []
+    @wrong_colors = []
+    @temp_colors = ["orange", "red", "blue", "green", "yellow", "brown"]
+    @unknown_colors =[]
   end
 
   def choose_colors
@@ -60,13 +65,7 @@ class Computer
     end
   end
 
-  def computer_guess(computer)
-    
-    random_color = OPTIONS[rand(5)]
-
-  end
-
-  def human_input_loop 
+  def human_feedback_loop 
     for i in 1...5
       p "Is Peg #{i} black, white or none?"
       begin
@@ -76,23 +75,97 @@ class Computer
         puts "Please only select from #{PEGS}"
         retry
       else
-        if player_feedback == "white" || player_feedback == 'black'
+        if player_feedback == "white" || player_feedback == "black"
           @computer_pegs.push(player_feedback)
         end
       end
     end
   end
-
-  def get_human_input
-    puts "TYPE HELP FOR HELP W/RULES"
-    human_input_loop()
-    
+           
+  def analyze
+    if @computer_pegs.include?("white") || @computer_pegs.include?("black")
+      @correct_colors.push(@computer_colors[0])
+    else
+      @wrong_colors.push(@computer_colors[0])
+    end
   end
+
+  def delete_wrong_color
+   
+    if @correct_colors == 4
+      @computer_colors = @correct_colors
+    else
+      @wrong_colors.each do |color|
+        if @temp_colors.include?(color)
+          @temp_colors.delete(color)
+        end
+      end
+      if @temp_colors.length == 4
+        @computer_colors = @temp_colors
+      else
+        correct_colors.each do |color|
+          if @temp_colors.include?(color) == false
+            @unknown_colors.push(color)
+          end
+        end
+        @computer_colors.push(unknown_colors[0])
+        unknown_colors.shift
+      end  
+    end
+  end
+
+  def send_guess()
+    print "Guess is #{@computer_colors} \n"
+    human_feedback_loop()
+    analyze()
+    @computer_pegs.clear
+  end
+
+  def shuffle_guess
+    5.times do 
+      @computer_colors.shuffle
+      send_guess()
+      if @computer_pegs == WON
+        print "YAY I WON, I'M THE BEST!"
+        break
+      end
+    end
+    if @computer_pegs != WON
+      print "AWW I LOST :("
+    end
+  end
+
+
+  def computer_guess
+    for i in 1...5
+      begin
+        random_color = OPTIONS[rand(6)]
+        raise if @computer_colors[0] == random_color
+      rescue
+        retry
+      else
+        @computer_colors = [random_color] * 4
+        send_guess()
+      end
+    end
+    delete_wrong_color()
+    if @unknown_colors.length > 1
+      @correct_colors.clear
+      @wrong_colors.clear
+      send_guess()
+      delete_wrong_color()
+    end
+    if @computer_colors == 4
+      shuffle_guess()
+    end
+  end
+
+
 
 
 end
 
-class Game 
+class HumanGuessGame 
   include Options
 
   def human_guess(player, computer_player)
@@ -131,8 +204,14 @@ class Game
     end
   end
 
+  def computer_guesser ()
+    comp = Computer.new("Shuffler")
+    comp.computer_guess
+  end
+
+
 end
 
 
-comp = Computer.new("AI1")
-comp.get_human_input
+
+
