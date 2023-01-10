@@ -1,19 +1,25 @@
 module Options 
   OPTIONS = ["orange", "red", "blue", "green", "yellow", "brown"]
   WON = ["Black", "Black", "Black", "Black"]
+  RULES = "**Give a black peg for the correct color in the correct position. n\ 
+  **Give a White peg if color exists in your secret code but not in the correct position. n/
+  Pegs should not be in a particular order"
+  PEGS = ["black", "white", "none"]
 end 
 
 class Player
   include Options
-  attr_reader :colors
+  attr_accessor :colors
+
   def initialize(name)
     @name = name
     @colors =[]
   end
 
   def get_colors
-    @colors.clear
-    print "\norange, red, blue, green, yellow, brown \n  \nPick four colors from the list above! \n \n"
+    #@colors.clear
+    p OPTIONS
+    print"\nPick four colors from the list above! \n \n"
     for i in 1...5
       puts "Pick Color number #{i}"
       begin
@@ -34,9 +40,11 @@ end
 class Computer
   include Options
   attr_reader :computer_colors
+
   def initialize(name)
     @name = name
-    @computer_colors =[]
+    @computer_colors = []
+    @computer_pegs = []
   end
 
   def choose_colors
@@ -52,13 +60,43 @@ class Computer
     end
   end
 
+  def computer_guess(computer)
+    
+    random_color = OPTIONS[rand(5)]
+
+  end
+
+  def human_input_loop 
+    for i in 1...5
+      p "Is Peg #{i} black, white or none?"
+      begin
+        player_feedback = gets.chomp.downcase
+        raise if PEGS.include?(player_feedback) == false
+      rescue
+        puts "Please only select from #{PEGS}"
+        retry
+      else
+        if player_feedback == "white" || player_feedback == 'black'
+          @computer_pegs.push(player_feedback)
+        end
+      end
+    end
+  end
+
+  def get_human_input
+    puts "TYPE HELP FOR HELP W/RULES"
+    human_input_loop()
+    
+  end
+
+
 end
 
 class Game 
   include Options
+
   def human_guess(player, computer_player)
     @pegs = []
-    puts computer_player.computer_colors
 
     player.get_colors
     human = player.colors
@@ -72,13 +110,12 @@ class Game
     p @pegs
   end
 
-  def play()
-    
+  def play_human_guess()
     player1 = Player.new("Human")
     comp_player = Computer.new("AI1")
+
     comp_player.choose_colors
-    @won = @pegs == ["Black", "Black", "Black", "Black"]
-    
+
     for i in 0...12
       human_guess(player1, comp_player)
       if WON == @pegs 
@@ -86,6 +123,7 @@ class Game
         break
       else
          @pegs.clear
+         player1.colors.clear
       end
       if i == 12
         print "Aww you didn't figure out the code :( Better luck tomorrow"
@@ -95,4 +133,6 @@ class Game
 
 end
 
-Game.new.play
+
+comp = Computer.new("AI1")
+comp.get_human_input
