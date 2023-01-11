@@ -41,6 +41,8 @@ class Computer
   include Options
   attr_reader :computer_colors
   attr_reader :correct_colors
+  attr_reader :wrong_colors
+  attr_accessor :unknown_colors
 
   def initialize(name)
     @name = name
@@ -50,6 +52,7 @@ class Computer
     @wrong_colors = []
     @temp_colors = ["orange", "red", "blue", "green", "yellow", "brown"]
     @unknown_colors =[]
+    @code_to_crack =[]
   end
 
   def choose_colors
@@ -65,107 +68,62 @@ class Computer
     end
   end
 
-  def human_feedback_loop 
+  def human_code_input
     for i in 1...5
-      p "Is Peg #{i} black, white or none?"
+      puts "choose color #{i} from #{OPTIONS}?"
       begin
         player_feedback = gets.chomp.downcase
-        raise if PEGS.include?(player_feedback) == false
+        raise if OPTIONS.include?(player_feedback) == false
       rescue
-        puts "Please only select from #{PEGS}"
+        puts "Please only select from #{OPTIONS}"
         retry
       else
-        if player_feedback == "white" || player_feedback == "black"
-          @computer_pegs.push(player_feedback)
-        end
+        @code_to_crack.push(player_feedback)
       end
-    end
-  end
-           
-  def analyze
-    if @computer_pegs.include?("white") || @computer_pegs.include?("black")
-      @correct_colors.push(@computer_colors[0])
-    else
-      @wrong_colors.push(@computer_colors[0])
     end
   end
 
-  def delete_wrong_color
-   
-    if @correct_colors == 4
-      @computer_colors = @correct_colors
-    else
-      @wrong_colors.each do |color|
-        if @temp_colors.include?(color)
-          @temp_colors.delete(color)
+  def compare_first_four
+    guess = @computer_colors.uniq
+    guess.each do |color|
+      if @code_to_crack.include?(color) 
+        if guess.find_index(color) == @code_to_crack.find_index(color)
+          @computer_pegs.push("Black")
+          @correct_colors.push(color)
+        else
+          @computer_pegs.push("White")
+          @correct_colors.push(color)
         end
-      end
-      if @temp_colors.length == 4
-        @computer_colors = @temp_colors
       else
-        correct_colors.each do |color|
-          if @temp_colors.include?(color) == false
-            @unknown_colors.push(color)
-          end
-        end
-        @computer_colors.push(unknown_colors[0])
-        unknown_colors.shift
-      end  
-    end
-  end
-
-  def send_guess()
-    print "Guess is #{@computer_colors} \n"
-    human_feedback_loop()
-    analyze()
-    @computer_pegs.clear
-  end
-
-  def shuffle_guess
-    5.times do 
-      @computer_colors.shuffle
-      send_guess()
-      if @computer_pegs == WON
-        print "YAY I WON, I'M THE BEST!"
-        break
+        @wrong_colors.push(color)
       end
     end
-    if @computer_pegs != WON
-      print "AWW I LOST :("
-    end
   end
 
+  def results_first_four
+     @known = (@correct_colors.concat(wrong_colors)).uniq
+     @unknown = OPTIONS - @known
 
-  def computer_guess
+  end
+
+  def first_four_guesses
+    human_code_input()
+    num = 5
+    guess = []
     for i in 1...5
-      begin
-        random_color = OPTIONS[rand(6)]
-        raise if @computer_colors[0] == random_color
-      rescue
-        retry
-      else
-        @computer_colors = [random_color] * 4
-        send_guess()
-      end
+      color = OPTIONS[num]
+      @computer_colors = [color] * 4 
+      print "My guess is #{@computer_colors} \n"
+      compare_first_four()
+      results_first_four()
+      num -= 1
     end
-    delete_wrong_color()
-    if @unknown_colors.length > 1
-      @correct_colors.clear
-      @wrong_colors.clear
-      send_guess()
-      delete_wrong_color()
-    end
-    if @computer_colors == 4
-      shuffle_guess()
-    end
+
   end
-
-
-
 
 end
 
-class HumanGuessGame 
+class Game
   include Options
 
   def human_guess(player, computer_player)
@@ -212,6 +170,7 @@ class HumanGuessGame
 
 end
 
-
+comp = Computer.new("Shuffler")
+comp.first_four_guesses
 
 
