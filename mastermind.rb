@@ -1,9 +1,11 @@
 module Options 
   OPTIONS = ["orange", "red", "blue", "green", "yellow", "brown"]
   WON = ["Black", "Black", "Black", "Black"]
-  RULES = "**Give a black peg for the correct color in the correct position. n\ 
-  **Give a White peg if color exists in your secret code but not in the correct position. n/
-  Pegs should not be in a particular order"
+  RULES = "                          HERE ARE THE RULES
+  If you are the codemaster: give me a code to brek. 
+  If you are the codebreaker: Try to break my code and I will give you feedback
+      Black pegs = correct place and color. 
+      White pegs = correct color but wrong place."
   PEGS = ["black", "white", "none"]
 end 
 
@@ -19,7 +21,7 @@ class Player
   def get_colors
     #@colors.clear
     p OPTIONS
-    print "\nPick four colors from the list above! \n \n"
+    puts "\n Pick four colors from the list as your guess \n \n"
     for i in 1...5
       puts "Pick Color number #{i}"
       begin
@@ -50,8 +52,8 @@ class Computer
     @computer_pegs = []
     @correct_colors = []
     @wrong_colors = []
-    @temp_colors = ["orange", "red", "blue", "green", "yellow", "brown"]
-    @unknown_colors =[]
+    @unknown = []
+    @known = []
     @code_to_crack =[]
   end
 
@@ -86,14 +88,27 @@ class Computer
   def compare_first_four
     guess = @computer_colors.uniq
     guess.each do |color|
+      @known.push(color)
+      if @code_to_crack.include?(color)
+        @correct_colors.push(color)
+      else
+        @wrong_colors.push(color)
+      end
+    end
+  end
+
+  def restart_varibbles
+    @computer_pegs.clear
+    @unknown.clear
+  end
+
+  def compare_remaining_gueses
+
+    restart_varibbles()
+    @computer_colors.each do |color|
+      @known.push(color)
       if @code_to_crack.include?(color) 
-        if guess.find_index(color) == @code_to_crack.find_index(color)
-          @computer_pegs.push("Black")
-          @correct_colors.push(color)
-        else
-          @computer_pegs.push("White")
-          @correct_colors.push(color)
-        end
+        @correct_colors.push(color)
       else
         @wrong_colors.push(color)
       end
@@ -103,28 +118,45 @@ class Computer
   def send_guess
     print "My guess is #{@computer_colors} \n"
   end
-  
-  def results_first_four
-    @known = (@correct_colors.concat(wrong_colors)).uniq
-    @unknown = OPTIONS - @known
 
-    case @correct_colors.length
-    when 4
-      @computer_colors.clear
-      @computer_colors = @known
+  def shuffler
+    for i in 0...8
+      clean_guess = @correct_colors.uniq
+      @computer_colors = clean_guess.shuffle
       send_guess()
+      compare_remaining_gueses()
+      if @computer_colors == @code_to_crack
+        print "I WIN! I'M THE BEST!"
+        break
+      end
+      if i == 7
+        print "AWW I LOST! :("
+      end
+    end
+    
+  end
+
+  def process_results
+    @unknown = OPTIONS - @known
+    correct_amount = @correct_colors.length
+   
+    @computer_colors.clear
+    case correct_amount
+    when 4
+      @computer_colors = @known
+      shuffler()
     when 3
-      @computer_colors.clear
       @computer_colors = @correct_colors.push(@unknown[0])
       send_guess()
+      compare_remaining_gueses()
+      process_results()
     when 2
-      @computer_colors.clear
-      @computer_colors = @correct_colors + @unknown_colors
-      send_guess()
+     @correct_colors.push(@unknown[0]) 
+     @correct_colors.push(@unknown[1])
+      shuffler()
     end
   end
- 
-  def 
+
   def first_four_guesses
     human_code_input()
     num = 5
@@ -134,15 +166,16 @@ class Computer
       @computer_colors = [color] * 4 
       print "My guess is #{@computer_colors} \n"
       compare_first_four()
-      results_first_four()
       num -= 1
     end
+    process_results()
   end
 
 end
 
 class Game
   include Options
+  SELECTION = ["codebreaker", "codemaster"]
 
   def human_guess(player, computer_player)
     @pegs = []
@@ -156,10 +189,11 @@ class Game
         human.find_index(color) == computer.find_index(color) ? @pegs.push("Black") : @pegs.push("White")
       end
     end
-    p @pegs
+    p "Your pegs are #{@pegs} \n"
   end
 
   def play_human_guess()
+
     player1 = Player.new("Human")
     comp_player = Computer.new("AI1")
 
@@ -167,7 +201,7 @@ class Game
 
     for i in 0...12
       human_guess(player1, comp_player)
-      if WON == @pegs 
+      if @pegs == WON
         print "YOU WON! WOOHOO!"
         break
       else
@@ -182,13 +216,34 @@ class Game
 
   def computer_guesser ()
     comp = Computer.new("Shuffler")
-    comp.computer_guess
+    comp.first_four_guesses
   end
 
+  def choose_game()
+    puts " \n ********************* WELCOME TO MASTERMIND!! **********************************"
+    puts RULES
+
+    puts " \n Do you want to be the codebreaker or the codemaster?"
+    begin
+      pick = gets.chomp
+      raise if !SELECTION.include?(pick)
+    rescue
+      puts "Please retry. Only type codebreaker or codemaster"
+      retry
+    else
+      if pick == "codemaster"
+        computer_guesser()
+      else 
+        play_human_guess()
+      end
+    end
+  end
 
 end
 
-comp = Computer.new("Shuffler")
-comp.first_four_guesses
+Game.new.choose_game
+
+
+
 
 
