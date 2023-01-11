@@ -82,7 +82,7 @@ class Computer
       end
     end
   end
-
+  
   def compare_first_four
     guess = @computer_colors.uniq
     guess.each do |color|
@@ -100,12 +100,31 @@ class Computer
     end
   end
 
-  def results_first_four
-     @known = (@correct_colors.concat(wrong_colors)).uniq
-     @unknown = OPTIONS - @known
-
+  def send_guess
+    print "My guess is #{@computer_colors} \n"
   end
+  
+  def results_first_four
+    @known = (@correct_colors.concat(wrong_colors)).uniq
+    @unknown = OPTIONS - @known
 
+    case @correct_colors.length
+    when 4
+      @computer_colors.clear
+      @computer_colors = @known
+      send_guess()
+    when 3
+      @computer_colors.clear
+      @computer_colors = @correct_colors.push(@unknown[0])
+      send_guess()
+    when 2
+      @computer_colors.clear
+      @computer_colors = @correct_colors + @unknown_colors
+      send_guess()
+    end
+  end
+ 
+  def 
   def first_four_guesses
     human_code_input()
     num = 5
@@ -118,7 +137,6 @@ class Computer
       results_first_four()
       num -= 1
     end
-
   end
 
 end
